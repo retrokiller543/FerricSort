@@ -2,7 +2,7 @@ use clap::Parser;
 
 #[derive(Parser)]
 #[clap(
-    version = "1.0.0",
+    version,
     author = "Retrokiller543",
     name = "FerricSort",
     about = "A fast sorting algorithm for large files"
