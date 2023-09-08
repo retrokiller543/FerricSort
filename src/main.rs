@@ -84,7 +84,7 @@ mod file {
 
             // Function to sort the list
             fn quick_sort(list: &mut [i64], left: usize, right: usize) {
-                if right - left + 1 <= THRESHOLD {
+                if right - left < THRESHOLD {
                     insertion_sort(&mut list[left..=right]);
                 } else {
                     let pivot_val = choose_pivot_value(&list[left..=right]);
