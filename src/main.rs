@@ -1,3 +1,4 @@
+#![allow(clippy::items_after_test_module)]
 use clap::Parser;
 
 #[derive(Parser)]
@@ -183,12 +184,11 @@ mod file {
 
         fn generate_test_file(vec: Vec<i64>) -> File {
             let sorted = vec.sorted();
-            let file = File {
+            File {
                 name: "tmp-test.txt".to_string(),
                 path: "tmp-test.txt".to_string(),
                 content: sorted,
-            };
-            file
+            }
         }
 
         #[test]
