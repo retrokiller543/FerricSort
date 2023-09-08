@@ -1,8 +1,9 @@
+#![allow(clippy::items_after_test_module)]
 use clap::Parser;
 
 #[derive(Parser)]
 #[clap(
-    version = "1.0.0",
+    version,
     author = "Retrokiller543",
     name = "FerricSort",
     about = "A fast sorting algorithm for large files"
@@ -183,12 +184,11 @@ mod file {
 
         fn generate_test_file(vec: Vec<i64>) -> File {
             let sorted = vec.sorted();
-            let file = File {
+            File {
                 name: "tmp-test.txt".to_string(),
                 path: "tmp-test.txt".to_string(),
                 content: sorted,
-            };
-            file
+            }
         }
 
         #[test]

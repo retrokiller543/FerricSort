@@ -6,7 +6,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  IMAGE_NAME: "pdf_translator"
+  IMAGE_NAME: "ferric_sort"
   NEW_VERSION: "v0.0.0"
 
 jobs:
@@ -59,14 +59,14 @@ jobs:
     - name: Rename the binary to include OS
       if: matrix.os != 'windows-latest'
       run: |
-          mv target/release/pdf_translator target/release/pdf_translator-${{ matrix.os }}
+          mv target/release/${{env.IMAGE_NAME}} target/release/${{env.IMAGE_NAME}}-${{ matrix.os }}
 
     - name: Upload the binary for release job
       uses: actions/upload-artifact@v2
       with:
-        name: pdf_translator-${{ matrix.os }}
+        name: ${{env.IMAGE_NAME}}-${{ matrix.os }}
         path: |
-          target/release/pdf_translator-${{ matrix.os }}
+          target/release/${{env.IMAGE_NAME}}-${{ matrix.os }}
 
   publish_github_release:
     needs: build_and_test
@@ -99,5 +99,5 @@ jobs:
         automatic_release_tag: "v${{ env.NEW_VERSION }}"
         title: "Release v${{ env.NEW_VERSION }}"
         files: |
-          pdf_translator-ubuntu-latest/pdf_translator-ubuntu-latest
-          pdf_translator-macos-latest/pdf_translator-macos-latest
+          ${{env.IMAGE_NAME}}-ubuntu-latest/${{env.IMAGE_NAME}}-ubuntu-latest
+          ${{env.IMAGE_NAME}}-macos-latest/${{env.IMAGE_NAME}}-macos-latest
