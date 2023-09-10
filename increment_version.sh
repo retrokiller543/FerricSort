@@ -35,10 +35,9 @@ fi
 
 version="$major.$minor.$patch"
 
-# Update the version in Cargo.toml
-echo "Updating version to $version"
-echo "messages = $messages"
 sed -i "s/^version = \".*\"/version = \"$version\"/" Cargo.toml
+
+echo $version
 
 # Only try to set the GitHub Actions environment variable if running within GitHub Actions
 if [ ! -z "$GITHUB_ENV" ]; then
