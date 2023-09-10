@@ -30,7 +30,7 @@ fn few_unique_elements(size: usize) -> Vec<i64> {
 }
 
 fn repeating_patterns(size: usize) -> Vec<i64> {
-    let pattern = vec![1, 2, 3, 4, 5];
+    let pattern = [1, 2, 3, 4, 5];
     let repeats = size / pattern.len();
     pattern
         .iter()
@@ -40,102 +40,68 @@ fn repeating_patterns(size: usize) -> Vec<i64> {
         .collect()
 }
 
+macro_rules! benchmark_sort {
+    ($c:expr, $func:ident, $name:expr) => {
+        let sizes = [5, 100, 1000, 10000, 1000000, 100000000];
+        let mut data: Vec<i64>;
+
+        for &size in &sizes {
+            data = generate_test_data(size);
+            let benchmark_name = format!("{} random {}", $name, size);
+            $c.bench_function(&benchmark_name, |b| b.iter(|| black_box(&mut data).$func()));
+
+            data = inversely_sorted(size);
+            let benchmark_name = format!("{} inversely sorted {}", $name, size);
+            $c.bench_function(&benchmark_name, |b| b.iter(|| black_box(&mut data).$func()));
+
+            data = few_unique_elements(size);
+            let benchmark_name = format!("{} few unique {}", $name, size);
+            $c.bench_function(&benchmark_name, |b| b.iter(|| black_box(&mut data).$func()));
+
+            data = repeating_patterns(size);
+            let benchmark_name = format!("{} repeating patterns {}", $name, size);
+            $c.bench_function(&benchmark_name, |b| b.iter(|| black_box(&mut data).$func()));
+        }
+    };
+}
+
+fn benchmark_standard_sort(c: &mut Criterion) {
+    benchmark_sort!(c, sort, "standard sort");
+}
+
 fn benchmark_quick_sort(c: &mut Criterion) {
-    let mut data = vec![5, 4, 3, 2, 1];
-    c.bench_function("quick sort 5", |b| {
-        b.iter(|| black_box(&mut data).quick_sort())
-    });
-
-    let mut data = generate_test_data(100);
-    c.bench_function("quick sort 100", |b| {
-        b.iter(|| black_box(&mut data).quick_sort())
-    });
-
-    let mut data = generate_test_data(1000);
-    c.bench_function("quick sort 1000", |b| {
-        b.iter(|| black_box(&mut data).quick_sort())
-    });
-
-    let mut data = generate_test_data(10000);
-    c.bench_function("quick sort 10000", |b| {
-        b.iter(|| black_box(&mut data).quick_sort())
-    });
-
-    let mut data = generate_test_data(1000000);
-    c.bench_function("quick sort 1000000", |b| {
-        b.iter(|| black_box(&mut data).quick_sort())
-    });
-
-    let mut data = inversely_sorted(1000);
-    c.bench_function("quick sort inversely sorted 1000", |b| {
-        b.iter(|| black_box(&mut data).quick_sort())
-    });
-
-    let mut data = few_unique_elements(1000);
-    c.bench_function("quick sort few unique 1000", |b| {
-        b.iter(|| black_box(&mut data).quick_sort())
-    });
-
-    let mut data = repeating_patterns(1000);
-    c.bench_function("quick sort repeating patterns 1000", |b| {
-        b.iter(|| black_box(&mut data).quick_sort())
-    });
+    benchmark_sort!(c, quick_sort, "quick sort");
 }
 
 fn benchmark_merge_sort(c: &mut Criterion) {
-    let mut data = vec![5, 4, 3, 2, 1];
-    c.bench_function("merge sort 5", |b| {
-        b.iter(|| black_box(&mut data).merge_sort())
-    });
+    benchmark_sort!(c, merge_sort, "merge sort");
+}
 
-    let mut data = generate_test_data(100);
-    c.bench_function("merge sort 100", |b| {
-        b.iter(|| black_box(&mut data).merge_sort())
-    });
-
-    let mut data = generate_test_data(1000);
-    c.bench_function("merge sort 1000", |b| {
-        b.iter(|| black_box(&mut data).merge_sort())
-    });
-
-    let mut data = generate_test_data(10000);
-    c.bench_function("merge sort 10000", |b| {
-        b.iter(|| black_box(&mut data).merge_sort())
-    });
-
-    let mut data = generate_test_data(1000000);
-    c.bench_function("merge sort 1000000", |b| {
-        b.iter(|| black_box(&mut data).merge_sort())
-    });
-
-    let mut data = inversely_sorted(1000);
-    c.bench_function("merge sort inversely sorted 1000", |b| {
-        b.iter(|| black_box(&mut data).merge_sort())
-    });
-
-    let mut data = few_unique_elements(1000);
-    c.bench_function("merge sort few unique 1000", |b| {
-        b.iter(|| black_box(&mut data).merge_sort())
-    });
-
-    let mut data = repeating_patterns(1000);
-    c.bench_function("merge sort repeating patterns 1000", |b| {
-        b.iter(|| black_box(&mut data).merge_sort())
-    });
+fn standard_sort() -> Criterion {
+    let path = Path::new("results/standard_sort");
+    Criterion::default()
+        .sample_size(10) // adjust as needed
+        .output_directory(path) // output directory for standard sort results
 }
 
 fn quicksort_config() -> Criterion {
     let path = Path::new("results/quicksort");
     Criterion::default()
-        .sample_size(60) // adjust as needed
+        .sample_size(10) // adjust as needed
         .output_directory(path) // output directory for quicksort results
 }
 
 fn mergesort_config() -> Criterion {
     let path = Path::new("results/mergesort");
     Criterion::default()
-        .sample_size(60) // adjust as needed
+        .sample_size(10) // adjust as needed
         .output_directory(path) // output directory for mergesort results
+}
+
+criterion_group! {
+    name = standard_sort_benches;
+    config = standard_sort();
+    targets = benchmark_standard_sort  // Your standard sort benchmark function
 }
 
 criterion_group! {
@@ -150,4 +116,4 @@ criterion_group! {
     targets = benchmark_merge_sort  // Your mergesort benchmark function
 }
 
-criterion_main!(quicksort_benches, mergesort_benches);
+criterion_main!(standard_sort_benches, quicksort_benches, mergesort_benches);
